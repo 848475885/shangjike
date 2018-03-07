@@ -1,0 +1,34 @@
+'''
+朝日新闻加载时会加载一个叫search_result的url
+类似于
+https://sitesearch.asahi.com/.cgi/sitesearch/sitesearch_result.cg?Keywords=%E5%B0%96%E9%96%A3%E8%AB%B8%E5%B3%B6&access=p&sort=RELEASE_DATE:desc:score:desc&output=xml_no_dtd&site=Asahi&filter=1&ie=UTF-8&oe=UTF-8&client=asahicom&start=30&start1=0&start2=0&num=10&link=&detail=&or=&title=&relation=&updown=&lr=lang_ja|lang_en&idx=11&s_idx=17&j_idx=7
+start=
+字段控制翻页
+'''
+
+import requests
+from bs4 import BeautifulSoup
+for i in range(10):
+    url='https://sitesearch.asahi.com/.cgi/sitesearch/sitesearch_result.cg?Keywords=%E5%B0%96%E9%96%A3%E8%AB%B8%E5%B3%B6&access=p&sort=RELEASE_DATE:desc:score:desc&output=xml_no_dtd&site=Asahi&filter=1&ie=UTF-8&oe=UTF-8&client=asahicom&start={}&start1=0&start2=0&num=10&link=&detail=&or=&title=&relation=&updown=&lr=lang_ja|lang_en&idx=11&s_idx=17&j_idx=7'.format(i)
+    r=requests.get(url)
+    r.encoding=r.apparent_encoding
+    html=r.text
+    soup=BeautifulSoup(html,'html.parser')
+    a_list=soup.find_all('a')
+    for j in range(10):
+        news_url=a_list[j].href
+        news=requests.get(news_url)
+        news.encoding=news.apparent_encoding
+        body=news.text
+        article=BeautifulSoup(body,'html.parser')
+        div_list=article.find_all('div',attrs={'clss':'ArticleText'})
+        div=div_list[0]
+        p_list=div.find_all('p')
+        with open(path,'w') as f:
+            for p in p_list:
+                f.write(p)
+
+
+
+
+
